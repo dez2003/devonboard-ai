@@ -1,0 +1,101 @@
+{
+  "name": "devonboard-ai",
+  "displayName": "Devonboard AI",
+  "description": "AI-powered developer onboarding assistant for VS Code",
+  "version": "0.1.0",
+  "publisher": "devonboard",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devonboard-sidebar",
+          "title": "Devonboard AI",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "devonboard-sidebar": [
+        {
+          "id": "devonboard-checklist",
+          "name": "Onboarding Checklist"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "devonboard.refresh",
+        "title": "Devonboard: Refresh Checklist",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "devonboard.setPlan",
+        "title": "Devonboard: Set Plan ID"
+      },
+      {
+        "command": "devonboard.showStepDetail",
+        "title": "Devonboard: Show Step Details"
+      },
+      {
+        "command": "devonboard.markComplete",
+        "title": "Devonboard: Mark Step Complete"
+      },
+      {
+        "command": "devonboard.markInProgress",
+        "title": "Devonboard: Start Step"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "devonboard.refresh",
+          "when": "view == devonboard-checklist",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Devonboard AI",
+      "properties": {
+        "devonboard.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "Backend API URL"
+        },
+        "devonboard.planId": {
+          "type": "string",
+          "default": "",
+          "description": "Current onboarding plan ID"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./dist/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^2.3.8",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}
