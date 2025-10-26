@@ -82,6 +82,9 @@ export class StepDetailPanel {
           case 'runCommand':
             this._runCommand(message.command_text);
             return;
+          case 'openExternal':
+            vscode.env.openExternal(vscode.Uri.parse(message.url));
+            return;
         }
       },
       null,
@@ -245,6 +248,60 @@ export class StepDetailPanel {
       padding-left: 20px;
       line-height: 1.8;
     }
+    .sources {
+      background-color: var(--vscode-editor-inactiveSelectionBackground);
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 4px solid var(--vscode-editorInfo-foreground);
+    }
+    .sources-desc {
+      color: var(--vscode-descriptionForeground);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .sources-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .source-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background-color: var(--vscode-editor-background);
+      padding: 12px;
+      border-radius: 4px;
+    }
+    .source-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .source-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .source-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .source-section {
+      font-size: 12px;
+      color: var(--vscode-descriptionForeground);
+    }
+    .source-link {
+      color: var(--vscode-textLink-foreground);
+      text-decoration: none;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .source-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -298,6 +355,27 @@ export class StepDetailPanel {
   </div>
   ` : ''}
 
+  ${step.sources && step.sources.length > 0 ? `
+  <div class="section sources">
+    <h2>📚 Documentation Sources</h2>
+    <p class="sources-desc">This step was generated from the following documentation:</p>
+    <div class="sources-list">
+      ${step.sources.map(source => `
+        <div class="source-item">
+          <div class="source-icon">${this._getSourceIcon(source.type)}</div>
+          <div class="source-details">
+            <div class="source-name">${source.name}</div>
+            ${source.section ? `<div class="source-section">${source.section}</div>` : ''}
+            <a href="${source.url}" class="source-link" onclick="openExternal('${source.url}'); return false;">
+              View original →
+            </a>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+  ` : ''}
+
   <div class="actions">
     ${progress.status === 'not_started' ? `
       <button onclick="startStep()">Start Step</button>
@@ -329,6 +407,10 @@ export class StepDetailPanel {
     function runCommand(cmd) {
       vscode.postMessage({ command: 'runCommand', command_text: cmd });
     }
+
+    function openExternal(url) {
+      vscode.postMessage({ command: 'openExternal', url: url });
+    }
   </script>
 </body>
 </html>`;
@@ -346,5 +428,17 @@ export class StepDetailPanel {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  private _getSourceIcon(type: string): string {
+    const icons: Record<string, string> = {
+      'github': '📁',
+      'notion': '📝',
+      'confluence': '📄',
+      'gdocs': '📃',
+      'slack': '💬',
+      'linear': '🎯',
+    };
+    return icons[type] || '📄';
   }
 }

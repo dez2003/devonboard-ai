@@ -64,14 +64,17 @@ export interface DocumentationSource {
   id: string;
   organization_id: string;
   plan_id: string;
-  source_type: 'github' | 'notion' | 'confluence';
+  source_type: 'github' | 'notion' | 'confluence' | 'gdocs' | 'slack' | 'linear';
   source_url: string;
+  source_name?: string;
   file_paths: string[];
+  filter_config?: Record<string, any>; // Source-specific filters/queries
+  is_active: boolean;
   last_synced_at?: string;
   last_content_hash?: string;
-  is_active: boolean;
-  config?: Record<string, any>;
+  sync_frequency: 'realtime' | 'hourly' | 'daily';
   created_at: string;
+  updated_at?: string;
 }
 
 export interface ChangeLog {
@@ -85,6 +88,41 @@ export interface ChangeLog {
   change_summary?: string;
   processed: boolean;
   processed_at?: string;
+}
+
+// Track which onboarding steps came from which sources
+export interface StepSource {
+  id: string;
+  step_id: string;
+  source_id: string;
+  source_section?: string; // Section/heading in source doc
+  original_content_url?: string; // Direct link to source
+  created_at: string;
+}
+
+// Enhanced change detection and history
+export interface SourceChange {
+  id: string;
+  source_id: string;
+  detected_at: string;
+  change_type: 'content' | 'structure' | 'deletion';
+  old_content?: string;
+  new_content?: string;
+  diff?: Record<string, any>; // Structured diff
+  affected_steps: string[]; // Array of step IDs
+  severity: number; // 1-10
+  auto_applied: boolean;
+  processed_at?: string;
+}
+
+// Extended OnboardingStep with source information
+export interface OnboardingStepWithSources extends OnboardingStep {
+  sources?: {
+    type: DocumentationSource['source_type'];
+    name: string;
+    url: string;
+    section?: string;
+  }[];
 }
 
 // API Response types

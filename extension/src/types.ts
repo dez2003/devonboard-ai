@@ -17,6 +17,15 @@ export interface OnboardingStep {
   estimated_duration: number;
   created_at: string;
   updated_at: string;
+  // Multi-source documentation support
+  sources?: StepSource[];
+}
+
+export interface StepSource {
+  type: 'github' | 'notion' | 'confluence' | 'gdocs' | 'slack' | 'linear';
+  name: string;
+  url: string;
+  section?: string;
 }
 
 export interface OnboardingPlan {
